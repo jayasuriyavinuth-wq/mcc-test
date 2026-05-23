@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Paste your MCQ questions, get quizzed instantly, and track your results. Free, offline-capable practice tool — no sign-up needed.">
+<meta name="theme-color" content="#7F77DD">
+
+<!-- Open Graph (for link previews on GitHub, Discord, WhatsApp, etc.) -->
+<meta property="og:title" content="MCQ Practice">
+<meta property="og:description" content="Paste your MCQ questions, get quizzed instantly, and review your mistakes.">
+<meta property="og:type" content="website">
+
+<title>MCQ Practice</title>
+
+<!-- Tabler Icons via jsDelivr CDN (pinned version for stability) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" crossorigin="anonymous">
+<noscript>
+  <style>.ti::before { content: '' !important; } </style>
+</noscript>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f3ff;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+.screen{display:none}.screen.active{display:block}
+
+.hero-bg{background:#EEEDFE;border-radius:20px;padding:2rem;margin-bottom:1.5rem;border:1px solid #AFA9EC;position:relative;overflow:hidden}
+.hero-bg::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:#CECBF6;border-radius:50%}
+.hero-bg::after{content:'';position:absolute;bottom:-20px;left:40px;width:80px;height:80px;background:#AFA9EC;border-radius:50%}
+.hero-title{font-size:28px;font-weight:600;color:#26215C;position:relative;z-index:1}
+.hero-sub{font-size:14px;color:#534AB7;margin-top:6px;position:relative;z-index:1}
+
+.format-box{background:#E6F1FB;border-radius:12px;border:1px solid #85B7EB;padding:1rem 1.25rem;margin-bottom:1.25rem}
+.format-label{font-size:12px;font-weight:600;color:#185FA5;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.format-lines{font-family:'Courier New',monospace;font-size:12px;color:#0C447C;line-height:1.9;display:block}
+.fmt-row{display:flex;align-items:center;gap:10px}
+.fmt-comment{font-size:11px;color:#378ADD;font-style:italic;font-family:-apple-system,sans-serif}
+
+textarea{width:100%;min-height:200px;font-family:'Courier New',monospace;font-size:13px;padding:14px;border:1.5px solid #AFA9EC;border-radius:12px;background:#FBEAF0;color:#26215C;resize:vertical;transition:border-color 0.2s;outline:none}
+textarea:focus{border-color:#7F77DD;background:#EEEDFE}
+textarea::placeholder{color:#B4B2A9}
+
+.btn-row{display:flex;gap:10px;margin-top:1rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;border:none;text-decoration:none}
+.btn:active{transform:scale(0.97)}
+.btn-start{background:#7F77DD;color:#fff}.btn-start:hover{background:#534AB7}
+.btn-sample{background:#FBEAF0;color:#993556;border:1.5px solid #ED93B1}.btn-sample:hover{background:#F4C0D1}
+.btn-next{background:#1D9E75;color:#fff;width:100%;justify-content:center}.btn-next:hover{background:#0F6E56}
+.btn-retake{background:#7F77DD;color:#fff}.btn-retake:hover{background:#534AB7}
+.btn-wrong{background:#D85A30;color:#fff}.btn-wrong:hover{background:#993C1D}
+.btn-new{background:#fff;color:#444441;border:1.5px solid #D3D1C7}.btn-new:hover{background:#F1EFE8}
+
+.q-card{background:#fff;border-radius:16px;border:1.5px solid #CECBF6;padding:1.75rem;box-shadow:0 2px 16px rgba(127,119,221,0.08)}
+.q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.q-num-badge{background:#EEEDFE;color:#534AB7;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px}
+.score-badge{background:#E1F5EE;color:#0F6E56;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px}
+.q-text{font-size:18px;font-weight:600;color:#26215C;line-height:1.6;margin-bottom:1.25rem}
+
+.prog-wrap{margin-bottom:1.25rem}
+.prog-track{height:8px;background:#EEEDFE;border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;background:#7F77DD;border-radius:4px;transition:width 0.4s cubic-bezier(.4,0,.2,1)}
+.prog-labels{display:flex;justify-content:space-between;font-size:12px;color:#888780;margin-bottom:6px}
+
+.opt{width:100%;text-align:left;padding:13px 16px;margin:7px 0;border:1.5px solid #D3D1C7;border-radius:10px;background:#F1EFE8;color:#2C2C2A;font-size:15px;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;gap:10px}
+.opt:hover:not(:disabled){border-color:#7F77DD;background:#EEEDFE;color:#26215C}
+.opt:disabled{cursor:default}
+.opt-letter{width:28px;height:28px;border-radius:7px;background:#D3D1C7;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#444441;flex-shrink:0;transition:all 0.18s}
+.opt:hover:not(:disabled) .opt-letter{background:#AFA9EC;color:#26215C}
+.opt.correct{border-color:#1D9E75;background:#E1F5EE;color:#085041}
+.opt.correct .opt-letter{background:#1D9E75;color:#fff}
+.opt.wrong{border-color:#D85A30;background:#FAECE7;color:#4A1B0C}
+.opt.wrong .opt-letter{background:#D85A30;color:#fff}
+.opt.reveal{border-color:#1D9E75;background:#E1F5EE;color:#085041}
+.opt.reveal .opt-letter{background:#1D9E75;color:#fff}
+
+.fb{border-radius:10px;padding:12px 16px;font-size:14px;font-weight:600;margin-top:14px;display:flex;align-items:center;gap:10px}
+.fb-ok{background:#E1F5EE;color:#085041;border:1px solid #5DCAA5}
+.fb-no{background:#FAECE7;color:#4A1B0C;border:1px solid #F0997B}
+.fb i{font-size:18px}
+
+.results-header{background:#EEEDFE;border-radius:16px;border:1.5px solid #AFA9EC;padding:1.75rem;margin-bottom:1.25rem;text-align:center}
+.results-title{font-size:26px;font-weight:700;color:#26215C}
+.results-sub{font-size:15px;color:#534AB7;margin-top:4px}
+
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.25rem}
+.metric{border-radius:12px;padding:1rem;text-align:center}
+.metric-score{background:#EEEDFE;border:1px solid #AFA9EC}
+.metric-correct{background:#E1F5EE;border:1px solid #9FE1CB}
+.metric-wrong{background:#FAECE7;border:1px solid #F5C4B3}
+.metric-pct{background:#E6F1FB;border:1px solid #B5D4F4}
+.metric-val{font-size:28px;font-weight:700}
+.metric-score .metric-val{color:#3C3489}
+.metric-correct .metric-val{color:#085041}
+.metric-wrong .metric-val{color:#712B13}
+.metric-pct .metric-val{color:#0C447C}
+.metric-lbl{font-size:12px;margin-top:3px;font-weight:500}
+.metric-score .metric-lbl{color:#534AB7}
+.metric-correct .metric-lbl{color:#0F6E56}
+.metric-wrong .metric-lbl{color:#993C1D}
+.metric-pct .metric-lbl{color:#185FA5}
+
+.review-section{margin-top:1.25rem}
+.review-heading{font-size:16px;font-weight:600;color:#26215C;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.review-item{background:#fff;border:1.5px solid #F5C4B3;border-radius:12px;padding:1rem 1.25rem;margin:10px 0;box-shadow:0 1px 6px rgba(216,90,48,0.06)}
+.review-q{font-size:14px;font-weight:600;color:#26215C;margin-bottom:8px}
+.review-opt{font-size:13px;padding:3px 0;color:#888780}
+.review-opt.correct-ans{color:#0F6E56;font-weight:600}
+
+.err{color:#A32D2D;font-size:13px;margin-top:10px;background:#FCEBEB;padding:10px 14px;border-radius:8px;border:1px solid #F7C1C1}
+.sep{height:1px;background:#EEEDFE;margin:1.25rem 0}
+
+@media(max-width:480px){
+  body{padding:1rem 0.75rem}
+  .hero-title{font-size:22px}
+  .q-text{font-size:16px}
+  .metrics{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div id="s-input" class="screen active">
+  <div class="hero-bg">
+    <div class="hero-title"><i class="ti ti-brain"></i> MCQ Practice</div>
+    <div class="hero-sub">Paste your questions, get quizzed, and track your results</div>
+  </div>
+  <div class="format-box">
+    <div class="format-label"><i class="ti ti-info-circle"></i> Format guide</div>
+    <div id="fmt-content" class="format-lines"></div>
+  </div>
+  <textarea id="q-input" placeholder="Paste your questions here..."></textarea>
+  <div class="btn-row">
+    <button class="btn btn-start" onclick="startQuiz()"><i class="ti ti-player-play"></i> Start quiz</button>
+    <button class="btn btn-sample" onclick="loadSample()"><i class="ti ti-sparkles"></i> Load example</button>
+  </div>
+  <div id="parse-err" style="display:none" class="err"></div>
+</div>
+
+<div id="s-quiz" class="screen">
+  <div class="prog-wrap">
+    <div class="prog-labels">
+      <span id="q-counter"></span>
+      <span id="score-top" style="color:#7F77DD;font-weight:600"></span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="prog"></div></div>
+  </div>
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num-badge" id="q-badge"></span>
+      <span class="score-badge" id="score-badge"></span>
+    </div>
+    <div class="q-text" id="q-text"></div>
+    <div id="opts"></div>
+    <div id="feedback" style="display:none"></div>
+    <button class="btn btn-next" id="next-btn" style="display:none;margin-top:1rem" onclick="nextQ()">
+      <i class="ti ti-arrow-right"></i> Next question
+    </button>
+  </div>
+</div>
+
+<div id="s-results" class="screen">
+  <div class="results-header">
+    <div class="results-title" id="r-title"></div>
+    <div class="results-sub" id="r-sub"></div>
+  </div>
+  <div class="metrics">
+    <div class="metric metric-score"><div class="metric-val" id="r-score"></div><div class="metric-lbl">Score</div></div>
+    <div class="metric metric-correct"><div class="metric-val" id="r-correct"></div><div class="metric-lbl">Correct</div></div>
+    <div class="metric metric-wrong"><div class="metric-val" id="r-wrong"></div><div class="metric-lbl">Wrong</div></div>
+    <div class="metric metric-pct"><div class="metric-val" id="r-pct"></div><div class="metric-lbl">Percentage</div></div>
+  </div>
+  <div class="prog-track" style="height:10px;margin-bottom:1.25rem"><div class="prog-fill" id="r-bar"></div></div>
+  <div class="btn-row">
+    <button class="btn btn-retake" onclick="retakeAll()"><i class="ti ti-refresh"></i> Retake all</button>
+    <button class="btn btn-wrong" id="btn-wrong" onclick="retakeWrong()" style="display:none"><i class="ti ti-target"></i> Retake wrong only</button>
+    <button class="btn btn-new" onclick="newQuiz()"><i class="ti ti-edit"></i> New questions</button>
+  </div>
+  <div class="sep"></div>
+  <div class="review-section">
+    <div class="review-heading" id="review-heading"></div>
+    <div id="review-list"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let allQ=[],shuffled=[],cur=0,correct=0,wrong=0,wrongList=[];
+const LETTERS=['A','B','C','D','E','F','G','H'];
+
+const SAMPLE_RAW=[
+  "What is the powerhouse of the cell?",
+  "1. Nucleus","2. Ribosome","+3. Mitochondria","4. Golgi apparatus","",
+  "Which planet is closest to the Sun?",
+  "+A) Mercury","B) Venus","C) Earth","D) Mars","",
+  "What is 12 x 12?",
+  "A) 124","B) 134","+C) 144","D) 154","",
+  "What does DNA stand for?",
+  "+A) Deoxyribonucleic acid","B) Diribonucleic acid","C) Deoxyribose nucleic amino","D) Dynamic nucleic acid"
+].join("\n");
+
+const FMT_LINES=[
+  {text:"What is the capital of France?",comment:""},
+  {text:"1. London",comment:""},
+  {text:"+2. Paris",comment:"  \u2190 put + before the correct answer"},
+  {text:"3. Berlin",comment:""},
+  {text:"4. Rome",comment:""},
+  {text:"",comment:"  \u2190 leave a blank line between questions"},
+  {text:"Speed of light is approximately:",comment:""},
+  {text:"+A) 3 x 10^8 m/s",comment:"  A) or 1. formats both work"},
+  {text:"B) 3 x 10^6 m/s",comment:""},
+  {text:"C) 3 x 10^4 m/s",comment:""}
+];
+
+function buildFormatGuide(){
+  const el=document.getElementById('fmt-content');
+  el.innerHTML=FMT_LINES.map(row=>{
+    if(row.text===''&&row.comment){
+      return '<div class="fmt-row"><span style="color:#9FE1CB;min-width:220px">[blank line]</span><span class="fmt-comment">'+row.comment+'</span></div>';
+    }
+    const isCorrect=row.text.startsWith('+');
+    const color=isCorrect?'#1D9E75':'#0C447C';
+    const commentHtml=row.comment?'<span class="fmt-comment">'+row.comment+'</span>':'';
+    return '<div class="fmt-row"><span style="color:'+color+';min-width:220px">'+row.text+'</span>'+commentHtml+'</div>';
+  }).join('');
+}
+
+function cleanOptionText(line){
+  return line
+    .replace(/^\+/,'')
+    .replace(/^-/,'')
+    .trim()
+    .replace(/^[A-Za-z]\s*[\.\)\-\:]\s*/,'')
+    .replace(/^\d+\s*[\.\)\-\:]\s*/,'')
+    .trim();
+}
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function loadSample(){document.getElementById('q-input').value=SAMPLE_RAW}
+
+function parseQuestions(raw){
+  const blocks=raw.trim().split(/\n\s*\n+/).filter(b=>b.trim());
+  if(!blocks.length)return{error:'No questions found.'};
+  const qs=[];
+  for(const block of blocks){
+    const lines=block.trim().split('\n').map(l=>l.trim()).filter(l=>l);
+    if(lines.length<2)continue;
+    const qText=lines[0];
+    const opts=[];let correctIdx=-1;
+    for(let i=1;i<lines.length;i++){
+      const raw=lines[i];
+      const isCorrect=raw.startsWith('+');
+      const cleanText=cleanOptionText(raw);
+      opts.push({text:cleanText,isCorrect});
+      if(isCorrect)correctIdx=opts.length-1;
+    }
+    if(correctIdx===-1)return{error:'No correct answer (with +) found in: "'+qText+'"'};
+    qs.push({q:qText,opts,correctIdx});
+  }
+  if(!qs.length)return{error:'No valid questions parsed.'};
+  return{qs};
+}
+
+function shuffle(arr){return arr.slice().sort(()=>Math.random()-0.5)}
+
+function startQuiz(){
+  const raw=document.getElementById('q-input').value;
+  const err=document.getElementById('parse-err');
+  err.style.display='none';
+  const res=parseQuestions(raw);
+  if(res.error){err.textContent=res.error;err.style.display='block';return}
+  allQ=res.qs;
+  shuffled=shuffle(allQ);
+  cur=0;correct=0;wrong=0;wrongList=[];
+  show('s-quiz');renderQ();
+}
+
+function updateScoreBadge(){
+  document.getElementById('score-badge').textContent='Correct: '+correct+'  Wrong: '+wrong;
+}
+
+function renderQ(){
+  const q=shuffled[cur];
+  const total=shuffled.length;
+  document.getElementById('q-counter').textContent='Question '+(cur+1)+' of '+total;
+  document.getElementById('prog').style.width=Math.round((cur/total)*100)+'%';
+  document.getElementById('q-badge').textContent='Question '+(cur+1);
+  updateScoreBadge();
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('next-btn').style.display='none';
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    const letter=document.createElement('span');
+    letter.className='opt-letter';
+    letter.textContent=LETTERS[i];
+    const txt=document.createElement('span');
+    txt.textContent=o.text;
+    b.appendChild(letter);b.appendChild(txt);
+    b.onclick=()=>answer(i);
+    opts.appendChild(b);
+  });
+}
+
+function answer(idx){
+  const q=shuffled[cur];
+  const btns=document.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('feedback');
+  fb.style.display='block';
+  if(q.opts[idx].isCorrect){
+    btns[idx].classList.add('correct');
+    fb.innerHTML='<div class="fb fb-ok"><i class="ti ti-circle-check"></i> Correct! Well done.</div>';
+    correct++;
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[q.correctIdx].classList.add('reveal');
+    fb.innerHTML='<div class="fb fb-no"><i class="ti ti-circle-x"></i> Incorrect — the right answer is: <strong>'+esc(q.opts[q.correctIdx].text)+'</strong></div>';
+    wrong++;wrongList.push(q);
+  }
+  document.getElementById('next-btn').style.display='flex';
+  updateScoreBadge();
+}
+
+function nextQ(){cur++;if(cur>=shuffled.length){showResults();return}renderQ()}
+
+function showResults(){
+  show('s-results');
+  const total=shuffled.length;
+  const pct=Math.round((correct/total)*100);
+  const title=pct===100?'Perfect score! 🎉':pct>=80?'Great job! 💪':pct>=50?'Not bad! 📚':'Keep studying! 🔁';
+  document.getElementById('r-title').textContent=title;
+  document.getElementById('r-sub').textContent='You scored '+correct+' out of '+total+' questions';
+  document.getElementById('r-score').textContent=correct+'/'+total;
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-wrong').textContent=wrong;
+  document.getElementById('r-pct').textContent=pct+'%';
+  document.getElementById('r-bar').style.width=pct+'%';
+  document.getElementById('btn-wrong').style.display=wrongList.length?'inline-flex':'none';
+  const rl=document.getElementById('review-list');
+  const rh=document.getElementById('review-heading');
+  if(!wrongList.length){
+    rh.innerHTML='<i class="ti ti-trophy" style="color:#BA7517"></i> No mistakes — flawless!';
+    rl.innerHTML='';
+  } else {
+    rh.innerHTML='<i class="ti ti-alert-triangle" style="color:#D85A30"></i> '+wrongList.length+' question'+(wrongList.length>1?'s':'')+' to review';
+    rl.innerHTML=wrongList.map(q=>'<div class="review-item"><div class="review-q">'+esc(q.q)+'</div>'+q.opts.map((o,i)=>'<div class="review-opt'+(o.isCorrect?' correct-ans':'')+'">'+( o.isCorrect?'<i class="ti ti-check" style="font-size:13px;vertical-align:-1px"></i> ':'')+LETTERS[i]+') '+esc(o.text)+'</div>').join('')+'</div>').join('');
+  }
+}
+
+function retakeAll(){shuffled=shuffle(allQ);cur=0;correct=0;wrong=0;wrongList=[];show('s-quiz');renderQ()}
+function retakeWrong(){allQ=wrongList.slice();shuffled=shuffle(allQ);cur=0;correct=0;wrong=0;wrongList=[];show('s-quiz');renderQ()}
+function newQuiz(){show('s-input')}
+
+buildFormatGuide();
+</script>
+</body>
+</html>
